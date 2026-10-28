@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Estudos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>📊 Relatório de Estudos</h1>
+        <nav>
+            <a href="{{ url_for('main.index') }}">Início</a>
+        </nav>
+    </header>
+    <main>
+        <section>
+            {% if report %}
+                <p><strong>Tempo total estudado:</strong> {{ grand_total }} minutos
+                    ({{ '%.1f'|format(grand_total / 60) }} horas)</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Matéria</th>
+                            <th>Sessões</th>
+                            <th>Tempo total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in report %}
+                            <tr>
+                                <td>{{ r.subject_name }}</td>
+                                <td>{{ r.total_sessions }}</td>
+                                <td>{{ r.total_minutes }} min ({{ '%.1f'|format(r.total_minutes / 60) }} h)</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Nenhuma sessão registrada ainda.</p>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>

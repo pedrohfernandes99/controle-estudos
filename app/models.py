@@ -60,3 +60,47 @@ def list_sessions() -> List[dict]:
             """
         ).fetchall()
         return [dict(r) for r in rows]
+
+        
+# ---------- Update / Delete ----------
+
+def update_subject(subject_id: int, new_name: str) -> Optional[dict]:
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE subjects SET name = ? WHERE id = ?",
+            (new_name, subject_id),
+        )
+        conn.commit()
+        return get_subject(subject_id)
+
+
+def delete_subject(subject_id: int) -> bool:
+    with get_connection() as conn:
+        cursor = conn.execute("DELETE FROM subjects WHERE id = ?", (subject_id,))
+        conn.commit()
+        return cursor.rowcount > 0
+
+
+def get_session(session_id: int) -> Optional[dict]:
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT * FROM study_sessions WHERE id = ?", (session_id,)
+        ).fetchone()
+        return dict(row) if row else None
+
+
+def update_session(session_id: int, duration_minutes: int, notes: Optional[str]) -> Optional[dict]:
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE study_sessions SET duration_minutes = ?, notes = ? WHERE id = ?",
+            (duration_minutes, notes, session_id),
+        )
+        conn.commit()
+        return get_session(session_id)
+
+
+def delete_session(session_id: int) -> bool:
+    with get_connection() as conn:
+        cursor = conn.execute("DELETE FROM study_sessions WHERE id = ?", (session_id,))
+        conn.commit()
+        return cursor.rowcount > 0

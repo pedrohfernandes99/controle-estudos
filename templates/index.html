@@ -8,6 +8,10 @@
 <body>
     <header>
         <h1>📚 Controle de Estudos</h1>
+        <nav>
+            <a href="{{ url_for('main.index') }}">Início</a>
+            <a href="{{ url_for('main.report') }}">Relatório</a>
+        </nav>
     </header>
 
     <main>
@@ -30,12 +34,22 @@
 
             <h3>Matérias cadastradas</h3>
             {% if subjects %}
-                <ul>
-                    {% for s in subjects %}
-                        <li>{{ s.name }}</li>
-                    {% endfor %}
-                </ul>
-            {% else %}
+            <ul class="subject-list">
+                {% for s in subjects %}
+                    <li>
+                        <span>{{ s.name }}</span>
+                        <span class="actions">
+                            <a href="{{ url_for('main.edit_subject', subject_id=s.id) }}">Editar</a>
+                            <form action="{{ url_for('main.delete_subject', subject_id=s.id) }}"
+                                  method="post" style="display:inline"
+                                  onsubmit="return confirm('Apagar a matéria e todas as sessões dela?');">
+                                <button type="submit" class="danger">Apagar</button>
+                            </form>
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
                 <p>Nenhuma matéria cadastrada ainda.</p>
             {% endif %}
         </section>
@@ -67,6 +81,7 @@
                             <th>Duração</th>
                             <th>Quando</th>
                             <th>Observações</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -76,6 +91,14 @@
                                 <td>{{ s.duration_minutes }} min</td>
                                 <td>{{ s.studied_at }}</td>
                                 <td>{{ s.notes or "" }}</td>
+                                <td>
+                                    <a href="{{ url_for('main.edit_session', session_id=s.id) }}">Editar</a>
+                                    <form action="{{ url_for('main.delete_session', session_id=s.id) }}"
+                                          method="post" style="display:inline"
+                                          onsubmit="return confirm('Apagar esta sessão?');">
+                                        <button type="submit" class="danger">Apagar</button>
+                                    </form>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>

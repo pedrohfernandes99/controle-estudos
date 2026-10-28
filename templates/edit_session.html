@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar sessão</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>✏️ Editar sessão</h1>
+        <nav>
+            <a href="{{ url_for('main.index') }}">Início</a>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <form action="{{ url_for('main.edit_session', session_id=session.id) }}" method="post">
+                <label>Duração (minutos):
+                    <input type="number" name="duration_minutes" value="{{ session.duration_minutes }}" min="1" required>
+                </label>
+                <label>Observações:
+                    <input type="text" name="notes" value="{{ session.notes or '' }}">
+                </label>
+                <button type="submit">Salvar</button>
+                <a href="{{ url_for('main.index') }}">Cancelar</a>
+            </form>
+        </section>
+    </main>
+</body>
+</html>
