@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Controle de Estudos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>📚 Controle de Estudos</h1>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flash">
+                    {% for msg in messages %}
+                        <li>{{ msg }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <section>
+            <h2>Cadastrar matéria</h2>
+            <form action="{{ url_for('main.add_subject') }}" method="post">
+                <input type="text" name="name" placeholder="Ex: Cálculo I" required>
+                <button type="submit">Cadastrar</button>
+            </form>
+
+            <h3>Matérias cadastradas</h3>
+            {% if subjects %}
+                <ul>
+                    {% for s in subjects %}
+                        <li>{{ s.name }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Nenhuma matéria cadastrada ainda.</p>
+            {% endif %}
+        </section>
+
+        <section>
+            <h2>Registrar sessão de estudo</h2>
+            {% if subjects %}
+                <form action="{{ url_for('main.add_session') }}" method="post">
+                    <select name="subject_id" required>
+                        <option value="">Escolha a matéria</option>
+                        {% for s in subjects %}
+                            <option value="{{ s.id }}">{{ s.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="duration_minutes" placeholder="Minutos" min="1" required>
+                    <input type="text" name="notes" placeholder="Observações (opcional)">
+                    <button type="submit">Registrar</button>
+                </form>
+            {% else %}
+                <p>Cadastre uma matéria primeiro.</p>
+            {% endif %}
+
+            <h3>Sessões registradas</h3>
+            {% if sessions %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Matéria</th>
+                            <th>Duração</th>
+                            <th>Quando</th>
+                            <th>Observações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in sessions %}
+                            <tr>
+                                <td>{{ s.subject_name }}</td>
+                                <td>{{ s.duration_minutes }} min</td>
+                                <td>{{ s.studied_at }}</td>
+                                <td>{{ s.notes or "" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Nenhuma sessão registrada ainda.</p>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>
