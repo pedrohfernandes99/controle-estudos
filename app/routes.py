@@ -116,24 +116,19 @@ def delete_session(session_id):
 
 @bp.route("/report")
 def report():
-    from app.database import get_connection
-    with get_connection() as conn:
-        rows = conn.execute(
-            """
-            SELECT sub.name AS subject_name,
-                   COUNT(*) AS total_sessions,
-                   SUM(s.duration_minutes) AS total_minutes
-            FROM study_sessions s
-            JOIN subjects sub ON sub.id = s.subject_id
-            GROUP BY sub.id
-            ORDER BY total_minutes DESC
-            """
-        ).fetchall()
-        report_data = [dict(r) for r in rows]
+    start = request.args.get("start") or None
+    end = request.args.get("end") or None
 
-        grand_total = sum(r["total_minutes"] for r in report_data) if report_data else 0
+    report_data = models.report_by_subject(start, end)
+    grand_total = sum(r["total_minutes"] for r in report_data) if report_data else 0
 
-    return render_template("report.html", report=report_data, grand_total=grand_total)
+    return render_template(
+        "report.html",
+        report=report_data,
+        grand_total=grand_total,
+        start=start,
+        end=end,
+    )
 
     
 @bp.route("/report/weekly")

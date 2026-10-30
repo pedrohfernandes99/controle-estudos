@@ -77,3 +77,26 @@ th {
     border-left: 4px solid #f1c40f;
     margin-bottom: 16px;
 }
+
+.filter-form {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.filter-form label {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    gap: 4px;
+}
+
+.filter-form a {
+    padding: 8px 12px;
+    text-decoration: none;
+    color: #555;
+}

@@ -122,3 +122,34 @@ def weekly_report() -> List[dict]:
             """
         ).fetchall()
         return [dict(r) for r in rows]
+
+        
+# ---------- Relatório por matéria com filtro opcional ----------
+
+def report_by_subject(start: Optional[str] = None, end: Optional[str] = None) -> List[dict]:
+    """Relatório de tempo por matéria, com filtro opcional por data (YYYY-MM-DD)."""
+    query = """
+        SELECT sub.name AS subject_name,
+               COUNT(*) AS total_sessions,
+               SUM(s.duration_minutes) AS total_minutes
+        FROM study_sessions s
+        JOIN subjects sub ON sub.id = s.subject_id
+    """
+    params = []
+    conditions = []
+
+    if start:
+        conditions.append("date(s.studied_at) >= date(?)")
+        params.append(start)
+    if end:
+        conditions.append("date(s.studied_at) <= date(?)")
+        params.append(end)
+
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+
+    query += " GROUP BY sub.id ORDER BY total_minutes DESC"
+
+    with get_connection() as conn:
+        rows = conn.execute(query, params).fetchall()
+        return [dict(r) for r in rows]

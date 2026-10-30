@@ -14,6 +14,17 @@
     </header>
     <main>
         <section>
+            <form method="get" action="{{ url_for('main.report') }}" class="filter-form">
+                <label>De:
+                    <input type="date" name="start" value="{{ start or '' }}">
+                </label>
+                <label>Até:
+                    <input type="date" name="end" value="{{ end or '' }}">
+                </label>
+                <button type="submit">Filtrar</button>
+                <a href="{{ url_for('main.report') }}">Limpar</a>
+            </form>
+
             {% if report %}
                 <p><strong>Tempo total estudado:</strong> {{ grand_total }} minutos
                     ({{ '%.1f'|format(grand_total / 60) }} horas)</p>
@@ -35,6 +46,8 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            {% elif start or end %}
+                <p>Nenhuma sessão registrada no período selecionado.</p>
             {% else %}
                 <p>Nenhuma sessão registrada ainda.</p>
             {% endif %}
