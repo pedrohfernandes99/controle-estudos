@@ -104,3 +104,21 @@ def delete_session(session_id: int) -> bool:
         cursor = conn.execute("DELETE FROM study_sessions WHERE id = ?", (session_id,))
         conn.commit()
         return cursor.rowcount > 0
+
+        
+# ---------- Relatório semanal ----------
+
+def weekly_report() -> List[dict]:
+    """Agrupa as sessões por semana (ano-semana) e devolve o total de minutos."""
+    with get_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT strftime('%Y-%W', studied_at) AS week,
+                   COUNT(*) AS total_sessions,
+                   SUM(duration_minutes) AS total_minutes
+            FROM study_sessions
+            GROUP BY week
+            ORDER BY week DESC
+            """
+        ).fetchall()
+        return [dict(r) for r in rows]

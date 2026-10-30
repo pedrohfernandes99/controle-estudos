@@ -134,3 +134,10 @@ def report():
         grand_total = sum(r["total_minutes"] for r in report_data) if report_data else 0
 
     return render_template("report.html", report=report_data, grand_total=grand_total)
+
+    
+@bp.route("/report/weekly")
+def report_weekly():
+    data = models.weekly_report()
+    grand_total = sum(r["total_minutes"] for r in data) if data else 0
+    return render_template("report_weekly.html", report=data, grand_total=grand_total)
