@@ -100,3 +100,16 @@ th {
     text-decoration: none;
     color: #555;
 }
+
+.button-link {
+    background: #27ae60;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.button-link:hover {
+    background: #219150;
+}

@@ -153,3 +153,36 @@ def report_by_subject(start: Optional[str] = None, end: Optional[str] = None) ->
     with get_connection() as conn:
         rows = conn.execute(query, params).fetchall()
         return [dict(r) for r in rows]
+
+        
+# ---------- Exportação detalhada ----------
+
+def sessions_for_export(start: Optional[str] = None, end: Optional[str] = None) -> List[dict]:
+    """Lista todas as sessões detalhadas, com filtro opcional por data."""
+    query = """
+        SELECT s.id,
+               s.studied_at,
+               sub.name AS subject_name,
+               s.duration_minutes,
+               s.notes
+        FROM study_sessions s
+        JOIN subjects sub ON sub.id = s.subject_id
+    """
+    params = []
+    conditions = []
+
+    if start:
+        conditions.append("date(s.studied_at) >= date(?)")
+        params.append(start)
+    if end:
+        conditions.append("date(s.studied_at) <= date(?)")
+        params.append(end)
+
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+
+    query += " ORDER BY s.studied_at DESC"
+
+    with get_connection() as conn:
+        rows = conn.execute(query, params).fetchall()
+        return [dict(r) for r in rows]

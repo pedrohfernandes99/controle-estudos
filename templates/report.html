@@ -23,6 +23,10 @@
                 </label>
                 <button type="submit">Filtrar</button>
                 <a href="{{ url_for('main.report') }}">Limpar</a>
+                <a class="button-link"
+                   href="{{ url_for('main.export_sessions_csv', start=start, end=end) }}">
+                   ⬇️ Exportar CSV
+                </a>
             </form>
 
             {% if report %}

@@ -1,3 +1,6 @@
+import csv
+import io
+
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 
 from app import models
@@ -136,3 +139,41 @@ def report_weekly():
     data = models.weekly_report()
     grand_total = sum(r["total_minutes"] for r in data) if data else 0
     return render_template("report_weekly.html", report=data, grand_total=grand_total)
+
+    
+# ---------- Exportação CSV ----------
+
+@bp.route("/export/sessions.csv")
+def export_sessions_csv():
+    start = request.args.get("start") or None
+    end = request.args.get("end") or None
+
+    sessions = models.sessions_for_export(start, end)
+
+    # io.StringIO = "arquivo" de texto na memória (não grava no disco)
+    buffer = io.StringIO()
+    # newline="" evita linhas em branco extras no Windows
+    writer = csv.writer(buffer, delimiter=";", lineterminator="\n")
+
+    # Cabeçalho
+    writer.writerow(["id", "data", "materia", "duracao_minutos", "observacoes"])
+
+    # Linhas
+    for s in sessions:
+        writer.writerow([
+            s["id"],
+            s["studied_at"],
+            s["subject_name"],
+            s["duration_minutes"],
+            s["notes"] or "",
+        ])
+
+    # Devolve o conteúdo como download
+    from flask import Response
+    return Response(
+        buffer.getvalue(),
+        mimetype="text/csv; charset=utf-8",
+        headers={
+            "Content-Disposition": "attachment; filename=estudos.csv",
+        },
+    )

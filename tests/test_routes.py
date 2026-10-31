@@ -145,3 +145,31 @@ def test_report_filtro_sem_resultados(client):
     html = response.data.decode("utf-8")
     assert response.status_code == 200
     assert "Nenhuma sessão registrada no período selecionado" in html
+
+    
+def test_export_csv_sem_dados(client):
+    response = client.get("/export/sessions.csv")
+    assert response.status_code == 200
+    assert response.mimetype == "text/csv"
+    body = response.data.decode("utf-8")
+    # Cabeçalho presente mesmo sem linhas
+    assert "id;data;materia;duracao_minutos;observacoes" in body
+
+
+def test_export_csv_com_dados(client):
+    client.post("/subjects", data={"name": "Cálculo I"})
+    client.post(
+        "/sessions",
+        data={"subject_id": "1", "duration_minutes": "60", "notes": "Revisão"},
+    )
+
+    response = client.get("/export/sessions.csv")
+    assert response.status_code == 200
+    # Nome do arquivo de download
+    assert "attachment" in response.headers["Content-Disposition"]
+    assert "estudos.csv" in response.headers["Content-Disposition"]
+
+    body = response.data.decode("utf-8")
+    assert "Cálculo I" in body
+    assert "60" in body
+    assert "Revisão" in body
