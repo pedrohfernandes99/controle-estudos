@@ -12,6 +12,15 @@
             <a href="{{ url_for('main.index') }}">Início</a>
             <a href="{{ url_for('main.report') }}">Por matéria</a>
             <a href="{{ url_for('main.report_weekly') }}">Semanal</a>
+            {% if session.get('username') %}
+                <span class="user-info">👤 {{ session.username }}</span>
+                <form action="{{ url_for('main.logout') }}" method="post" style="display:inline">
+                    <button type="submit" class="link-button">Sair</button>
+                </form>
+            {% else %}
+                <a href="{{ url_for('main.login') }}">Entrar</a>
+                <a href="{{ url_for('main.register') }}">Criar conta</a>
+            {% endif %}
         </nav>
     </header>
 

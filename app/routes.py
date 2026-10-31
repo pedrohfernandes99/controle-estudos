@@ -1,7 +1,7 @@
 import csv
 import io
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 
 from app import models
 
@@ -177,3 +177,64 @@ def export_sessions_csv():
             "Content-Disposition": "attachment; filename=estudos.csv",
         },
     )
+
+    
+# ---------- Autenticação ----------
+
+@bp.route("/register", methods=["GET", "POST"])
+def register():
+    if session.get("user_id"):
+        return redirect(url_for("main.index"))
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        password2 = request.form.get("password2", "")
+
+        if not username or not password:
+            flash("Preencha usuário e senha.")
+        elif len(password) < 6:
+            flash("A senha deve ter pelo menos 6 caracteres.")
+        elif password != password2:
+            flash("As senhas não conferem.")
+        elif models.get_user_by_username(username):
+            flash("Este usuário já existe.")
+        else:
+            try:
+                user = models.create_user(username, password)
+                session["user_id"] = user["id"]
+                session["username"] = user["username"]
+                flash("Conta criada com sucesso.")
+                return redirect(url_for("main.index"))
+            except Exception as e:
+                flash(f"Erro ao criar conta: {e}")
+
+    return render_template("register.html")
+
+
+@bp.route("/login", methods=["GET", "POST"])
+def login():
+    if session.get("user_id"):
+        return redirect(url_for("main.index"))
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        user = models.authenticate_user(username, password)
+        if user:
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+            flash(f"Bem-vindo, {user['username']}!")
+            return redirect(url_for("main.index"))
+        else:
+            flash("Usuário ou senha incorretos.")
+
+    return render_template("login.html")
+
+
+@bp.route("/logout", methods=["POST"])
+def logout():
+    session.clear()
+    flash("Você saiu.")
+    return redirect(url_for("main.index"))

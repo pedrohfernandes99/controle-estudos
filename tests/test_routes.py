@@ -173,3 +173,79 @@ def test_export_csv_com_dados(client):
     assert "Cálculo I" in body
     assert "60" in body
     assert "Revisão" in body
+
+    
+# ---------- Autenticação ----------
+
+def test_register_cria_usuario_e_loga(client):
+    response = client.post(
+        "/register",
+        data={"username": "pedro", "password": "senha123", "password2": "senha123"},
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+    assert "Conta criada com sucesso" in html
+    assert "pedro" in html  # aparece no menu: 👤 pedro
+
+    with client.session_transaction() as sess:
+        assert sess["username"] == "pedro"
+
+
+def test_register_senhas_diferentes(client):
+    response = client.post(
+        "/register",
+        data={"username": "pedro", "password": "senha123", "password2": "outra123"},
+        follow_redirects=True,
+    )
+    html = response.data.decode("utf-8")
+    assert "As senhas não conferem" in html
+
+    # Usuário NÃO foi criado
+    from app import models
+    assert models.get_user_by_username("pedro") is None
+
+
+def test_login_correto(client, db):
+    from app import models
+    models.create_user("pedro", "senha123")
+
+    response = client.post(
+        "/login",
+        data={"username": "pedro", "password": "senha123"},
+        follow_redirects=True,
+    )
+    html = response.data.decode("utf-8")
+    assert "Bem-vindo, pedro" in html
+
+    with client.session_transaction() as sess:
+        assert sess["username"] == "pedro"
+
+
+def test_login_senha_errada(client, db):
+    from app import models
+    models.create_user("pedro", "senha123")
+
+    response = client.post(
+        "/login",
+        data={"username": "pedro", "password": "errada"},
+        follow_redirects=True,
+    )
+    html = response.data.decode("utf-8")
+    assert "Usuário ou senha incorretos" in html
+
+    with client.session_transaction() as sess:
+        assert "username" not in sess
+
+
+def test_logout(client, db):
+    from app import models
+    models.create_user("pedro", "senha123")
+
+    client.post("/login", data={"username": "pedro", "password": "senha123"})
+    response = client.post("/logout", follow_redirects=True)
+    html = response.data.decode("utf-8")
+    assert "Você saiu" in html
+
+    with client.session_transaction() as sess:
+        assert "username" not in sess

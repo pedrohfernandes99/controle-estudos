@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Criar conta — Controle de Estudos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>📚 Controle de Estudos</h1>
+        <nav>
+            <a href="{{ url_for('main.index') }}">Início</a>
+            <a href="{{ url_for('main.login') }}">Entrar</a>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h2>Criar conta</h2>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul class="flash">
+                        {% for msg in messages %}
+                            <li>{{ msg }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            <form method="post" action="{{ url_for('main.register') }}" class="auth-form">
+                <label>Usuário:
+                    <input type="text" name="username" required autofocus>
+                </label>
+                <label>Senha (mínimo 6 caracteres):
+                    <input type="password" name="password" minlength="6" required>
+                </label>
+                <label>Confirme a senha:
+                    <input type="password" name="password2" minlength="6" required>
+                </label>
+                <button type="submit">Criar conta</button>
+            </form>
+
+            <p>Já tem conta? <a href="{{ url_for('main.login') }}">Entrar</a></p>
+        </section>
+    </main>
+</body>
+</html>

@@ -113,3 +113,58 @@ th {
 .button-link:hover {
     background: #219150;
 }
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 320px;
+}
+
+.auth-form label {
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    gap: 4px;
+}
+
+.auth-form input {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.auth-form button {
+    padding: 10px 16px;
+    font-size: 15px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.auth-form button:hover {
+    background: #2980b9;
+}
+
+.user-info {
+    margin: 0 8px;
+    color: #ecf0f1;
+    font-size: 14px;
+}
+
+.link-button {
+    background: transparent;
+    color: #ecf0f1;
+    border: 1px solid #ecf0f1;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.link-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+}

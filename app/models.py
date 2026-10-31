@@ -1,4 +1,5 @@
 from typing import List, Optional
+from werkzeug.security import generate_password_hash, check_password_hash
 from app.database import get_connection
 
 
@@ -186,3 +187,39 @@ def sessions_for_export(start: Optional[str] = None, end: Optional[str] = None) 
     with get_connection() as conn:
         rows = conn.execute(query, params).fetchall()
         return [dict(r) for r in rows]
+
+        
+# ---------- Usuários ----------
+
+def create_user(username: str, password: str) -> dict:
+    """Cria um usuário com a senha hasheada. Retorna o usuário criado."""
+    password_hash = generate_password_hash(password)
+    with get_connection() as conn:
+        cursor = conn.execute(
+            "INSERT INTO users (username, password_hash) VALUES (?, ?)",
+            (username, password_hash),
+        )
+        conn.commit()
+        row = conn.execute(
+            "SELECT id, username, created_at FROM users WHERE id = ?",
+            (cursor.lastrowid,),
+        ).fetchone()
+        return dict(row)
+
+
+def get_user_by_username(username: str) -> Optional[dict]:
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT * FROM users WHERE username = ?", (username,)
+        ).fetchone()
+        return dict(row) if row else None
+
+
+def authenticate_user(username: str, password: str) -> Optional[dict]:
+    """Devolve o usuário se a senha conferir; None caso contrário."""
+    user = get_user_by_username(username)
+    if not user:
+        return None
+    if not check_password_hash(user["password_hash"], password):
+        return None
+    return {"id": user["id"], "username": user["username"]}
