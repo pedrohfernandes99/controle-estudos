@@ -1,61 +1,57 @@
 import csv
 import io
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import (
+    Blueprint,
+    Response,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
 from app import models
+from app.auth import login_required, current_user_id
 
 bp = Blueprint("main", __name__)
 
 
+# ---------- Home ----------
+
 @bp.route("/")
+@login_required
 def index():
-    subjects = models.list_subjects()
-    sessions = models.list_sessions()
+    user_id = current_user_id()
+    subjects = models.list_subjects(user_id)
+    sessions = models.list_sessions(user_id)
     return render_template("index.html", subjects=subjects, sessions=sessions)
 
 
+# ---------- Matérias ----------
+
 @bp.route("/subjects", methods=["POST"])
+@login_required
 def add_subject():
+    user_id = current_user_id()
     name = request.form.get("name", "").strip()
     if not name:
         flash("O nome da matéria não pode ser vazio.")
         return redirect(url_for("main.index"))
 
     try:
-        models.create_subject(name)
+        models.create_subject(user_id, name)
     except Exception:
         flash("Essa matéria já existe.")
     return redirect(url_for("main.index"))
 
 
-@bp.route("/sessions", methods=["POST"])
-def add_session():
-    subject_id = request.form.get("subject_id")
-    duration = request.form.get("duration_minutes")
-    notes = request.form.get("notes", "").strip() or None
-
-    if not subject_id or not duration:
-        flash("Preencha a matéria e a duração.")
-        return redirect(url_for("main.index"))
-
-    try:
-        models.create_session(
-            subject_id=int(subject_id),
-            duration_minutes=int(duration),
-            notes=notes,
-        )
-    except Exception as e:
-        flash(f"Erro ao registrar sessão: {e}")
-
-    return redirect(url_for("main.index"))
-
-    
-# ---------- Edição e exclusão de matérias ----------
-
 @bp.route("/subjects/<int:subject_id>/edit", methods=["GET", "POST"])
+@login_required
 def edit_subject(subject_id):
-    subject = models.get_subject(subject_id)
+    user_id = current_user_id()
+    subject = models.get_subject(user_id, subject_id)
     if not subject:
         flash("Matéria não encontrada.")
         return redirect(url_for("main.index"))
@@ -66,7 +62,7 @@ def edit_subject(subject_id):
             flash("O nome não pode ser vazio.")
         else:
             try:
-                models.update_subject(subject_id, new_name)
+                models.update_subject(user_id, subject_id, new_name)
                 flash("Matéria atualizada.")
                 return redirect(url_for("main.index"))
             except Exception:
@@ -76,20 +72,49 @@ def edit_subject(subject_id):
 
 
 @bp.route("/subjects/<int:subject_id>/delete", methods=["POST"])
+@login_required
 def delete_subject(subject_id):
-    if models.delete_subject(subject_id):
+    user_id = current_user_id()
+    if models.delete_subject(user_id, subject_id):
         flash("Matéria apagada.")
     else:
         flash("Matéria não encontrada.")
     return redirect(url_for("main.index"))
 
 
-# ---------- Edição e exclusão de sessões ----------
+# ---------- Sessões ----------
+
+@bp.route("/sessions", methods=["POST"])
+@login_required
+def add_session():
+    user_id = current_user_id()
+    subject_id = request.form.get("subject_id")
+    duration = request.form.get("duration_minutes")
+    notes = request.form.get("notes", "").strip() or None
+
+    if not subject_id or not duration:
+        flash("Preencha a matéria e a duração.")
+        return redirect(url_for("main.index"))
+
+    try:
+        models.create_session(
+            user_id=user_id,
+            subject_id=int(subject_id),
+            duration_minutes=int(duration),
+            notes=notes,
+        )
+    except Exception as e:
+        flash(f"Erro ao registrar sessão: {e}")
+
+    return redirect(url_for("main.index"))
+
 
 @bp.route("/sessions/<int:session_id>/edit", methods=["GET", "POST"])
+@login_required
 def edit_session(session_id):
-    session = models.get_session(session_id)
-    if not session:
+    user_id = current_user_id()
+    session_obj = models.get_session(user_id, session_id)
+    if not session_obj:
         flash("Sessão não encontrada.")
         return redirect(url_for("main.index"))
 
@@ -99,30 +124,34 @@ def edit_session(session_id):
         if not duration:
             flash("Informe a duração.")
         else:
-            models.update_session(session_id, int(duration), notes)
+            models.update_session(user_id, session_id, int(duration), notes)
             flash("Sessão atualizada.")
             return redirect(url_for("main.index"))
 
-    return render_template("edit_session.html", session=session)
+    return render_template("edit_session.html", session=session_obj)
 
 
 @bp.route("/sessions/<int:session_id>/delete", methods=["POST"])
+@login_required
 def delete_session(session_id):
-    if models.delete_session(session_id):
+    user_id = current_user_id()
+    if models.delete_session(user_id, session_id):
         flash("Sessão apagada.")
     else:
         flash("Sessão não encontrada.")
     return redirect(url_for("main.index"))
 
 
-# ---------- Relatório ----------
+# ---------- Relatórios ----------
 
 @bp.route("/report")
+@login_required
 def report():
+    user_id = current_user_id()
     start = request.args.get("start") or None
     end = request.args.get("end") or None
 
-    report_data = models.report_by_subject(start, end)
+    report_data = models.report_by_subject(user_id, start, end)
     grand_total = sum(r["total_minutes"] for r in report_data) if report_data else 0
 
     return render_template(
@@ -133,32 +162,30 @@ def report():
         end=end,
     )
 
-    
+
 @bp.route("/report/weekly")
+@login_required
 def report_weekly():
-    data = models.weekly_report()
+    user_id = current_user_id()
+    data = models.weekly_report(user_id)
     grand_total = sum(r["total_minutes"] for r in data) if data else 0
     return render_template("report_weekly.html", report=data, grand_total=grand_total)
 
-    
+
 # ---------- Exportação CSV ----------
 
 @bp.route("/export/sessions.csv")
+@login_required
 def export_sessions_csv():
+    user_id = current_user_id()
     start = request.args.get("start") or None
     end = request.args.get("end") or None
 
-    sessions = models.sessions_for_export(start, end)
+    sessions = models.sessions_for_export(user_id, start, end)
 
-    # io.StringIO = "arquivo" de texto na memória (não grava no disco)
     buffer = io.StringIO()
-    # newline="" evita linhas em branco extras no Windows
     writer = csv.writer(buffer, delimiter=";", lineterminator="\n")
-
-    # Cabeçalho
     writer.writerow(["id", "data", "materia", "duracao_minutos", "observacoes"])
-
-    # Linhas
     for s in sessions:
         writer.writerow([
             s["id"],
@@ -168,17 +195,13 @@ def export_sessions_csv():
             s["notes"] or "",
         ])
 
-    # Devolve o conteúdo como download
-    from flask import Response
     return Response(
         buffer.getvalue(),
         mimetype="text/csv; charset=utf-8",
-        headers={
-            "Content-Disposition": "attachment; filename=estudos.csv",
-        },
+        headers={"Content-Disposition": "attachment; filename=estudos.csv"},
     )
 
-    
+
 # ---------- Autenticação ----------
 
 @bp.route("/register", methods=["GET", "POST"])
@@ -237,4 +260,4 @@ def login():
 def logout():
     session.clear()
     flash("Você saiu.")
-    return redirect(url_for("main.index"))
+    return redirect(url_for("main.login"))
