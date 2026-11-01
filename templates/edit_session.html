@@ -1,28 +1,28 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Editar sessão</title>
+    <title>Edit session</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <h1>✏️ Editar sessão</h1>
+        <h1>✏️ Edit session</h1>
         <nav>
-            <a href="{{ url_for('main.index') }}">Início</a>
+            <a href="{{ url_for('main.index') }}">Home</a>
         </nav>
     </header>
     <main>
         <section>
             <form action="{{ url_for('main.edit_session', session_id=session.id) }}" method="post">
-                <label>Duração (minutos):
+                <label>Duration (minutes):
                     <input type="number" name="duration_minutes" value="{{ session.duration_minutes }}" min="1" required>
                 </label>
-                <label>Observações:
+                <label>Notes:
                     <input type="text" name="notes" value="{{ session.notes or '' }}">
                 </label>
-                <button type="submit">Salvar</button>
-                <a href="{{ url_for('main.index') }}">Cancelar</a>
+                <button type="submit">Save</button>
+                <a href="{{ url_for('main.index') }}">Cancel</a>
             </form>
         </section>
     </main>

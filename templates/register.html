@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Criar conta — Controle de Estudos</title>
+    <title>Sign up — Study Tracker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <h1>📚 Controle de Estudos</h1>
+        <h1>📚 Study Tracker</h1>
         <nav>
-            <a href="{{ url_for('main.index') }}">Início</a>
-            <a href="{{ url_for('main.login') }}">Entrar</a>
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('main.login') }}">Log in</a>
         </nav>
     </header>
     <main>
         <section>
-            <h2>Criar conta</h2>
+            <h2>Sign up</h2>
 
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
@@ -28,19 +28,19 @@
             {% endwith %}
 
             <form method="post" action="{{ url_for('main.register') }}" class="auth-form">
-                <label>Usuário:
+                <label>Username:
                     <input type="text" name="username" required autofocus>
                 </label>
-                <label>Senha (mínimo 6 caracteres):
+                <label>Password (min. 6 characters):
                     <input type="password" name="password" minlength="6" required>
                 </label>
-                <label>Confirme a senha:
+                <label>Confirm password:
                     <input type="password" name="password2" minlength="6" required>
                 </label>
-                <button type="submit">Criar conta</button>
+                <button type="submit">Sign up</button>
             </form>
 
-            <p>Já tem conta? <a href="{{ url_for('main.login') }}">Entrar</a></p>
+            <p>Already have an account? <a href="{{ url_for('main.login') }}">Log in</a></p>
         </section>
     </main>
 </body>

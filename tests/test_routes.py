@@ -18,7 +18,7 @@ import pytest
 def test_rotas_protegidas_redirecionam(client, method, path):
     response = getattr(client, method)(path, follow_redirects=True)
     html = response.data.decode("utf-8")
-    assert "Faça login para continuar" in html
+    assert "Please log in to continue" in html
 
 
 # ---------- Home ----------
@@ -27,7 +27,7 @@ def test_index_sem_dados(auth_client):
     response = auth_client.get("/")
     html = response.data.decode("utf-8")
     assert response.status_code == 200
-    assert "Nenhuma matéria cadastrada ainda" in html
+    assert "No subjects registered yet" in html
 
 
 # ---------- Matérias ----------
@@ -50,7 +50,7 @@ def test_add_subject_nome_vazio(auth_client):
         follow_redirects=True,
     )
     html = response.data.decode("utf-8")
-    assert "não pode ser vazio" in html
+    assert "cannot be empty" in html
 
 
 def test_add_duplicate_subject_mostra_erro(auth_client):
@@ -61,7 +61,7 @@ def test_add_duplicate_subject_mostra_erro(auth_client):
         follow_redirects=True,
     )
     html = response.data.decode("utf-8")
-    assert "já existe" in html
+    assert "already exists" in html
 
 
 def test_edit_subject_get(auth_client):
@@ -87,8 +87,8 @@ def test_delete_subject(auth_client):
     auth_client.post("/subjects", data={"name": "Cálculo I"})
     response = auth_client.post("/subjects/1/delete", follow_redirects=True)
     html = response.data.decode("utf-8")
-    assert "Matéria apagada" in html
-    assert "Nenhuma matéria cadastrada ainda" in html
+    assert "Subject deleted" in html
+    assert "No subjects registered yet" in html
 
 
 # ---------- Sessões ----------
@@ -124,7 +124,7 @@ def test_report_vazio(auth_client):
     response = auth_client.get("/report")
     html = response.data.decode("utf-8")
     assert response.status_code == 200
-    assert "Nenhuma sessão registrada ainda" in html
+    assert "No sessions recorded yet" in html
 
 
 def test_report_com_sessao(auth_client):
@@ -171,7 +171,7 @@ def test_report_filtro_sem_resultados(auth_client):
     response = auth_client.get("/report?start=2099-01-01&end=2099-12-31")
     html = response.data.decode("utf-8")
     assert response.status_code == 200
-    assert "Nenhuma sessão registrada no período selecionado" in html
+    assert "No sessions recorded in the selected period" in html
 
 
 # ---------- Exportação CSV ----------
@@ -181,23 +181,23 @@ def test_export_csv_sem_dados(auth_client):
     assert response.status_code == 200
     assert response.mimetype == "text/csv"
     body = response.data.decode("utf-8")
-    assert "id;data;materia;duracao_minutos;observacoes" in body
+    assert "id;date;subject;duration_minutes;notes" in body
 
 
 def test_export_csv_com_dados(auth_client):
     auth_client.post("/subjects", data={"name": "Cálculo I"})
     auth_client.post(
         "/sessions",
-        data={"subject_id": "1", "duration_minutes": "60", "notes": "Revisão"},
+        data={"subject_id": "1", "duration_minutes": "60", "notes": "Revision"},
     )
     response = auth_client.get("/export/sessions.csv")
     assert response.status_code == 200
     assert "attachment" in response.headers["Content-Disposition"]
-    assert "estudos.csv" in response.headers["Content-Disposition"]
+    assert "study-sessions.csv" in response.headers["Content-Disposition"]
     body = response.data.decode("utf-8")
     assert "Cálculo I" in body
     assert "60" in body
-    assert "Revisão" in body
+    assert "Revision" in body
 
 
 # ---------- Isolamento entre usuários ----------
@@ -205,24 +205,24 @@ def test_export_csv_com_dados(auth_client):
 def test_usuario_nao_ve_materia_de_outro(auth_client):
     from app import models
     other = models.create_user("outro", "senha123")
-    models.create_subject(other["id"], "Matéria Secreta")
+    models.create_subject(other["id"], "Secret Subject")
 
     response = auth_client.get("/")
     html = response.data.decode("utf-8")
-    assert "Matéria Secreta" not in html
+    assert "Secret Subject" not in html
 
 
 def test_usuario_nao_consegue_editar_materia_de_outro(auth_client):
     from app import models
     other = models.create_user("outro", "senha123")
-    subject = models.create_subject(other["id"], "Matéria Secreta")
+    subject = models.create_subject(other["id"], "Secret Subject")
 
     response = auth_client.get(
         f"/subjects/{subject['id']}/edit",
         follow_redirects=True,
     )
     html = response.data.decode("utf-8")
-    assert "Matéria não encontrada" in html
+    assert "Subject not found" in html
 
 
 # ---------- Autenticação ----------
@@ -235,7 +235,7 @@ def test_register_cria_usuario_e_loga(client):
     )
     assert response.status_code == 200
     html = response.data.decode("utf-8")
-    assert "Conta criada com sucesso" in html
+    assert "Account created successfully" in html
     assert "pedro" in html
 
     with client.session_transaction() as sess:
@@ -249,7 +249,7 @@ def test_register_senhas_diferentes(client):
         follow_redirects=True,
     )
     html = response.data.decode("utf-8")
-    assert "As senhas não conferem" in html
+    assert "Passwords do not match" in html
 
     from app import models
     assert models.get_user_by_username("pedro") is None
@@ -265,7 +265,7 @@ def test_login_correto(client):
         follow_redirects=True,
     )
     html = response.data.decode("utf-8")
-    assert "Bem-vindo, pedro" in html
+    assert "Welcome, pedro" in html
 
     with client.session_transaction() as sess:
         assert sess["username"] == "pedro"
@@ -281,7 +281,7 @@ def test_login_senha_errada(client):
         follow_redirects=True,
     )
     html = response.data.decode("utf-8")
-    assert "Usuário ou senha incorretos" in html
+    assert "Incorrect username or password" in html
 
     with client.session_transaction() as sess:
         assert "username" not in sess
@@ -294,7 +294,7 @@ def test_logout(client):
     client.post("/login", data={"username": "pedro", "password": "senha123"})
     response = client.post("/logout", follow_redirects=True)
     html = response.data.decode("utf-8")
-    assert "Você saiu" in html
+    assert "You have been logged out" in html
 
     with client.session_transaction() as sess:
         assert "username" not in sess

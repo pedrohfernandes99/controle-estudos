@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Entrar — Controle de Estudos</title>
+    <title>Log in — Study Tracker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <h1>📚 Controle de Estudos</h1>
+        <h1>📚 Study Tracker</h1>
         <nav>
-            <a href="{{ url_for('main.index') }}">Início</a>
-            <a href="{{ url_for('main.register') }}">Criar conta</a>
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('main.register') }}">Sign up</a>
         </nav>
     </header>
     <main>
         <section>
-            <h2>Entrar</h2>
+            <h2>Log in</h2>
 
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
@@ -28,16 +28,16 @@
             {% endwith %}
 
             <form method="post" action="{{ url_for('main.login') }}" class="auth-form">
-                <label>Usuário:
+                <label>Username:
                     <input type="text" name="username" required autofocus>
                 </label>
-                <label>Senha:
+                <label>Password:
                     <input type="password" name="password" required>
                 </label>
-                <button type="submit">Entrar</button>
+                <button type="submit">Log in</button>
             </form>
 
-            <p>Não tem conta? <a href="{{ url_for('main.register') }}">Criar conta</a></p>
+            <p>Don't have an account? <a href="{{ url_for('main.register') }}">Sign up</a></p>
         </section>
     </main>
 </body>

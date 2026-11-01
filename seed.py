@@ -1,11 +1,11 @@
-"""Popula o banco com dados de exemplo para demonstração.
+"""Populate the database with sample data for demonstration.
 
-Uso:
+Usage:
     python seed.py
 
-Cria o usuário 'demo' (senha 'demo1234') com 5 matérias e 12 sessões
-distribuídas pelas últimas 4 semanas. Se o usuário 'demo' já existir,
-os dados antigos dele são apagados antes de recriar.
+Creates the user 'demo' (password 'demo1234') with 5 subjects and 12
+sessions spread across the last 4 weeks. If 'demo' already exists,
+their data is wiped and recreated.
 """
 
 from datetime import datetime, timedelta
@@ -17,44 +17,43 @@ from app.database import get_connection, init_db
 def main() -> None:
     init_db()
 
-    # Apaga dados anteriores do 'demo' (não afeta outros usuários)
     if models.get_user_by_username("demo"):
         with get_connection() as conn:
             conn.execute("DELETE FROM users WHERE username = 'demo'")
             conn.commit()
-        print("Dados anteriores de 'demo' apagados.")
+        print("Previous 'demo' data deleted.")
 
     user = models.create_user("demo", "demo1234")
     user_id = user["id"]
-    print(f"Usuário 'demo' criado (id={user_id}).")
+    print(f"Created 'demo' (id={user_id}).")
 
     subjects_data = [
-        "Cálculo I",
-        "Estrutura de Dados",
-        "Engenharia de Software",
-        "Banco de Dados",
-        "Física I",
+        "Calculus I",
+        "Data Structures",
+        "Software Engineering",
+        "Databases",
+        "Physics I",
     ]
     subjects = {}
     for name in subjects_data:
         s = models.create_subject(user_id, name)
         subjects[name] = s["id"]
-    print(f"{len(subjects)} matérias criadas.")
+    print(f"{len(subjects)} subjects created.")
 
-    # (dias_atras, matéria, duração, observação)
+    # (days_ago, subject, duration_minutes, notes)
     sessions_data = [
-        (21, "Cálculo I", 60, "Revisão de limites e derivadas"),
-        (18, "Estrutura de Dados", 90, "Implementação de lista encadeada"),
-        (16, "Engenharia de Software", 45, "Leitura do cap. 3 — metodologias ágeis"),
-        (14, "Banco de Dados", 60, "Modelagem ER do projeto final"),
-        (12, "Cálculo I", 90, "Resolução de exercícios — integrais"),
-        (10, "Física I", 30, "Lista de exercícios — cinemática"),
-        (8, "Estrutura de Dados", 75, "Árvores binárias de busca"),
-        (6, "Engenharia de Software", 60, "Revisão de requisitos do projeto"),
-        (5, "Banco de Dados", 45, "Normalização — 1FN, 2FN, 3FN"),
-        (3, "Cálculo I", 60, "Estudo para a P1"),
-        (2, "Física I", 45, "Revisão de vetores"),
-        (1, "Estrutura de Dados", 90, "Algoritmos de ordenação"),
+        (21, "Calculus I", 60, "Limits and derivatives review"),
+        (18, "Data Structures", 90, "Linked list implementation"),
+        (16, "Software Engineering", 45, "Reading ch. 3 — agile methodologies"),
+        (14, "Databases", 60, "Final project ER modeling"),
+        (12, "Calculus I", 90, "Integrals exercises"),
+        (10, "Physics I", 30, "Kinematics exercises"),
+        (8, "Data Structures", 75, "Binary search trees"),
+        (6, "Software Engineering", 60, "Project requirements review"),
+        (5, "Databases", 45, "Normalization — 1NF, 2NF, 3NF"),
+        (3, "Calculus I", 60, "Exam 1 prep"),
+        (2, "Physics I", 45, "Vectors review"),
+        (1, "Data Structures", 90, "Sorting algorithms"),
     ]
 
     now = datetime.now()
@@ -70,9 +69,9 @@ def main() -> None:
             conn.commit()
 
     total = sum(s[2] for s in sessions_data)
-    print(f"{len(sessions_data)} sessões criadas.")
-    print(f"Total: {total} minutos ({total/60:.1f} horas).")
-    print("Pronto! Faça login com 'demo' / 'demo1234'.")
+    print(f"{len(sessions_data)} sessions created.")
+    print(f"Total: {total} minutes ({total/60:.1f} hours).")
+    print("Ready! Log in with 'demo' / 'demo1234'.")
 
 
 if __name__ == "__main__":

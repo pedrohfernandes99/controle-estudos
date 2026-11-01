@@ -7,8 +7,8 @@ def login_required(view):
     """Redireciona para /login se o usuário não estiver autenticado."""
     @wraps(view)
     def wrapped(*args, **kwargs):
-        if not session.get("user_id"):
-            flash("Faça login para continuar.")
+        if not session.get("user_id"):         
+            flash("Please log in to continue.")
             return redirect(url_for("main.login"))
         return view(*args, **kwargs)
     return wrapped

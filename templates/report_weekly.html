@@ -1,30 +1,30 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Relatório Semanal</title>
+    <title>Weekly Report</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <h1>📅 Relatório Semanal</h1>
+        <h1>📅 Weekly Report</h1>
         <nav>
-            <a href="{{ url_for('main.index') }}">Início</a>
-            <a href="{{ url_for('main.report') }}">Por matéria</a>
-            <a href="{{ url_for('main.report_weekly') }}">Semanal</a>
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('main.report') }}">By subject</a>
+            <a href="{{ url_for('main.report_weekly') }}">Weekly</a>
         </nav>
     </header>
     <main>
         <section>
             {% if report %}
-                <p><strong>Tempo total estudado:</strong> {{ grand_total }} minutos
-                    ({{ '%.1f'|format(grand_total / 60) }} horas)</p>
+                <p><strong>Total time studied:</strong> {{ grand_total }} minutes
+                    ({{ '%.1f'|format(grand_total / 60) }} hours)</p>
                 <table>
                     <thead>
                         <tr>
-                            <th>Semana</th>
-                            <th>Sessões</th>
-                            <th>Tempo total</th>
+                            <th>Week</th>
+                            <th>Sessions</th>
+                            <th>Total time</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -38,7 +38,7 @@
                     </tbody>
                 </table>
             {% else %}
-                <p>Nenhuma sessão registrada ainda.</p>
+                <p>No sessions recorded yet.</p>
             {% endif %}
         </section>
     </main>

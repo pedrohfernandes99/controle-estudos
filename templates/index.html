@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Controle de Estudos</title>
+    <title>Study Tracker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <h1>📚 Controle de Estudos</h1>
+        <h1>📚 Study Tracker</h1>
         <nav>
-            <a href="{{ url_for('main.index') }}">Início</a>
-            <a href="{{ url_for('main.report') }}">Por matéria</a>
-            <a href="{{ url_for('main.report_weekly') }}">Semanal</a>
+            <a href="{{ url_for('main.index') }}">Home</a>
+            <a href="{{ url_for('main.report') }}">By subject</a>
+            <a href="{{ url_for('main.report_weekly') }}">Weekly</a>
             {% if session.get('username') %}
                 <span class="user-info">👤 {{ session.username }}</span>
                 <form action="{{ url_for('main.logout') }}" method="post" style="display:inline">
-                    <button type="submit" class="link-button">Sair</button>
+                    <button type="submit" class="link-button">Log out</button>
                 </form>
             {% else %}
-                <a href="{{ url_for('main.login') }}">Entrar</a>
-                <a href="{{ url_for('main.register') }}">Criar conta</a>
+                <a href="{{ url_for('main.login') }}">Log in</a>
+                <a href="{{ url_for('main.register') }}">Sign up</a>
             {% endif %}
         </nav>
     </header>
@@ -36,62 +36,62 @@
         {% endwith %}
 
         <section>
-            <h2>Cadastrar matéria</h2>
+            <h2>Add subject</h2>
             <form action="{{ url_for('main.add_subject') }}" method="post">
-                <input type="text" name="name" placeholder="Ex: Cálculo I" required>
-                <button type="submit">Cadastrar</button>
+                <input type="text" name="name" placeholder="e.g. Calculus I" required>
+                <button type="submit">Add</button>
             </form>
 
-            <h3>Matérias cadastradas</h3>
+            <h3>Registered subjects</h3>
             {% if subjects %}
-            <ul class="subject-list">
-                {% for s in subjects %}
-                    <li>
-                        <span>{{ s.name }}</span>
-                        <span class="actions">
-                            <a href="{{ url_for('main.edit_subject', subject_id=s.id) }}">Editar</a>
-                            <form action="{{ url_for('main.delete_subject', subject_id=s.id) }}"
-                                  method="post" style="display:inline"
-                                  onsubmit="return confirm('Apagar a matéria e todas as sessões dela?');">
-                                <button type="submit" class="danger">Apagar</button>
-                            </form>
-                        </span>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-                <p>Nenhuma matéria cadastrada ainda.</p>
+                <ul class="subject-list">
+                    {% for s in subjects %}
+                        <li>
+                            <span>{{ s.name }}</span>
+                            <span class="actions">
+                                <a href="{{ url_for('main.edit_subject', subject_id=s.id) }}">Edit</a>
+                                <form action="{{ url_for('main.delete_subject', subject_id=s.id) }}"
+                                      method="post" style="display:inline"
+                                      onsubmit="return confirm('Delete this subject and all its sessions?');">
+                                    <button type="submit" class="danger">Delete</button>
+                                </form>
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No subjects registered yet.</p>
             {% endif %}
         </section>
 
         <section>
-            <h2>Registrar sessão de estudo</h2>
+            <h2>Log study session</h2>
             {% if subjects %}
                 <form action="{{ url_for('main.add_session') }}" method="post">
                     <select name="subject_id" required>
-                        <option value="">Escolha a matéria</option>
+                        <option value="">Choose subject</option>
                         {% for s in subjects %}
                             <option value="{{ s.id }}">{{ s.name }}</option>
                         {% endfor %}
                     </select>
-                    <input type="number" name="duration_minutes" placeholder="Minutos" min="1" required>
-                    <input type="text" name="notes" placeholder="Observações (opcional)">
-                    <button type="submit">Registrar</button>
+                    <input type="number" name="duration_minutes" placeholder="Minutes" min="1" required>
+                    <input type="text" name="notes" placeholder="Notes (optional)">
+                    <button type="submit">Log</button>
                 </form>
             {% else %}
-                <p>Cadastre uma matéria primeiro.</p>
+                <p>Add a subject first.</p>
             {% endif %}
 
-            <h3>Sessões registradas</h3>
+            <h3>Logged sessions</h3>
             {% if sessions %}
                 <table>
                     <thead>
                         <tr>
-                            <th>Matéria</th>
-                            <th>Duração</th>
-                            <th>Quando</th>
-                            <th>Observações</th>
-                            <th>Ações</th>
+                            <th>Subject</th>
+                            <th>Duration</th>
+                            <th>When</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -102,11 +102,11 @@
                                 <td>{{ s.studied_at }}</td>
                                 <td>{{ s.notes or "" }}</td>
                                 <td>
-                                    <a href="{{ url_for('main.edit_session', session_id=s.id) }}">Editar</a>
+                                    <a href="{{ url_for('main.edit_session', session_id=s.id) }}">Edit</a>
                                     <form action="{{ url_for('main.delete_session', session_id=s.id) }}"
                                           method="post" style="display:inline"
-                                          onsubmit="return confirm('Apagar esta sessão?');">
-                                        <button type="submit" class="danger">Apagar</button>
+                                          onsubmit="return confirm('Delete this session?');">
+                                        <button type="submit" class="danger">Delete</button>
                                     </form>
                                 </td>
                             </tr>
@@ -114,7 +114,7 @@
                     </tbody>
                 </table>
             {% else %}
-                <p>Nenhuma sessão registrada ainda.</p>
+                <p>No sessions recorded yet.</p>
             {% endif %}
         </section>
     </main>
