@@ -4,6 +4,25 @@
 
 A web application to log study sessions per subject, track time spent on each one, and visualize progress over time.
 
+## Screenshots
+
+### Home — subjects and recent sessions
+
+![Home](docs/screenshots/home.png)
+
+### Per-subject report with date filter
+
+![Report](docs/screenshots/report.png)
+
+### Weekly breakdown
+
+![Weekly report](docs/screenshots/report-weekly.png)
+
+### Login
+
+![Login](docs/screenshots/login.png)
+
+
 ## Status
 
 🚧 **Active development** — core features working, authentication in progress.
