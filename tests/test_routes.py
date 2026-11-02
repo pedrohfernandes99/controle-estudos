@@ -298,3 +298,11 @@ def test_logout(client):
 
     with client.session_transaction() as sess:
         assert "username" not in sess
+
+        
+def test_pagina_404_personalizada(client):
+    response = client.get("/rota-que-nao-existe")
+    assert response.status_code == 404
+    html = response.data.decode("utf-8")
+    assert "Page Not Found" in html
+    assert "404" in html

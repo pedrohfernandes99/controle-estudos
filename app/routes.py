@@ -261,3 +261,15 @@ def logout():
     session.clear()
     flash("You have been logged out.")
     return redirect(url_for("main.login"))
+
+    
+# ---------- Error handlers ----------
+
+@bp.app_errorhandler(404)
+def not_found(error):
+    return render_template("404.html"), 404
+
+
+@bp.app_errorhandler(500)
+def internal_error(error):
+    return render_template("500.html"), 500

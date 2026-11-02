@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>404 — Page Not Found</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>📚 Study Tracker</h1>
+        <nav>
+            <a href="{{ url_for('main.index') }}">Home</a>
+        </nav>
+    </header>
+    <main>
+        <section style="text-align: center; padding: 48px 24px;">
+            <h1 style="font-size: 4rem; color: var(--color-primary); margin-bottom: 8px;">404</h1>
+            <h2>Page Not Found</h2>
+            <p style="color: var(--color-text-muted); margin-bottom: 24px;">
+                The page you're looking for doesn't exist or was moved.
+            </p>
+            <a href="{{ url_for('main.index') }}" class="button-link">Go back home</a>
+        </section>
+    </main>
+</body>
+</html>
